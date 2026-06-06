@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rehabify</title>
+  <style>
+    /* --- CSS VARIABLES (Theme Colors & Fonts) --- */
+    :root {
+      --emerald-50: #ecfdf5;
+      --emerald-100: #d1fae5;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --emerald-600: #059669;
+      
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+
+      --indigo-100: #e0e7ff;
+      --indigo-500: #6366f1;
+      --indigo-600: #4f46e5;
+      
+      --orange-100: #ffedd5;
+      --orange-600: #ea580c;
+
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    /* --- RESET & BASE --- */
+    * {
+      margin: 0;
+      padding: 0;
+     
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--slate-200); /* Darker background for desktop framing */
+      color: var(--slate-900);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    button {
+      border: none;
+      background: none;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+    #game .cv-area{
+    width:100%;
+    height:calc(100vh - 80px);
+    margin:0;
+    border:none;
+}
+
+    /* --- APP CONTAINER --- */
+    .app-container {
+    width:100%;
+    max-width:100%;
+    min-height:100vh;
+    background:white;
+    box-shadow:none;
+    border:none;
+}
+    
+
+    /* DESKTOP/TABLET FRAMING */
+    
+
+    /* --- VIEW MANAGEMENT & ANIMATIONS --- */
+    .view {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ffffff;
+      opacity: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .view.active {
+      display: flex;
+      opacity: 1;
+      animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 10;
+    }
+
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* --- UTILITIES --- */
+    .p-8 { padding: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mt-auto { margin-top: auto; }
+    .text-center { text-align: center; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .h-full { height: 100%; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .space-x-2 > * + * { margin-left: 0.5rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+
+    /* --- BUTTONS --- */
+    .btn {
+      width: 100%;
+      padding: 1rem 2rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-dark {
+      background-color: var(--slate-900);
+      color: white;
+    }
+    .btn-dark:active { background-color: var(--slate-800); transform: scale(0.98); }
+
+    .btn-primary {
+      background-color: var(--emerald-500);
+      color: white;
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+    }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-indigo {
+      background-color: var(--indigo-500);
+      color: white;
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+      border-radius: 1rem;
+    }
+
+    .btn-outline {
+      width: 100%;
+      padding: 1.25rem;
+      border: 2px solid var(--slate-100);
+      border-radius: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--slate-700);
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover, .btn-outline.selected {
+      border-color: var(--emerald-500);
+      background-color: var(--emerald-50);
+      color: var(--emerald-600);
+    }
+
+    /* --- LANDING VIEW --- */
+    #landing { background-color: var(--emerald-50); }
+    .app-icon {
+      width: 4rem; height: 4rem;
+      background-color: var(--emerald-500);
+      border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+      margin-bottom: 2rem;
+    }
+    .hero-title { font-size: clamp(1.875rem, 5vw, 2.25rem); font-weight: 800; line-height: 1.2; color: var(--slate-900); }
+    .hero-title span { color: var(--emerald-600); }
+    .hero-subtitle { font-size: clamp(1rem, 3vw, 1.125rem); color: var(--slate-600); line-height: 1.6; margin-top: 1rem; }
+    .feature-card {
+      background: white; padding: 1rem; border-radius: 0.75rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-weight: 500; color: var(--slate-700);
+    }
+
+    /* --- ASSESSMENT WIZARD --- */
+    .progress-bar { display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-shrink: 0; }
+    .progress-step { height: 0.5rem; flex: 1; border-radius: 9999px; background-color: var(--slate-100); transition: background-color 0.3s; }
+    .progress-step.active { background-color: var(--emerald-500); }
+    .step-content { display: none; animation: slideIn 0.4s ease forwards; }
+    .step-content.active { display: block; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    
+    /* Range Slider */
+    input[type=range] {
+      -webkit-appearance: none; width: 100%; background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; height: 1.5rem; width: 1.5rem; border-radius: 50%;
+      background: var(--emerald-500); cursor: pointer; margin-top: -0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%; height: 0.5rem; cursor: pointer; background: var(--slate-200); border-radius: 9999px;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: white; display: none; flex-direction: column;
+      align-items: center; justify-content: center; z-index: 20; text-align: center; padding: 2rem;
+    }
+    .spinner {
+      width: 4rem; height: 4rem; color: var(--emerald-500);
+      animation: spin 2s linear infinite; margin-bottom: 1.5rem;
+    }
+
+    /* --- PROFILE VIEW --- */
+    .badge {
+      display: inline-block; padding: 0.25rem 1rem; background: var(--emerald-100);
+      color: var(--emerald-700); border-radius: 9999px; font-size: 0.875rem;
+      font-weight: 700; letter-spacing: 0.05em; margin-bottom: 1.5rem;
+    }
+    .data-card {
+      background: var(--slate-50); padding: 1.5rem; border-radius: 1.5rem;
+      border: 1px solid var(--slate-100); margin-bottom: 1.5rem;
+    }
+    .data-row { display: flex; justify-content: space-between; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--slate-200); }
+    .data-row:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .dark-card { background: var(--slate-900); color: white; padding: 1.5rem; border-radius: 1.5rem; margin-bottom: 2rem; }
+
+    /* --- JOURNEY VIEW --- */
+    #journey { background: #F4F4F5; padding-bottom: 6rem; }
+    .sticky-header {
+      position: sticky; top: 0; background: rgba(244, 244, 245, 0.9);
+      backdrop-filter: blur(8px); z-index: 10; padding: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-200);
+    }
+    .icon-btn { width: 2.5rem; height: 2.5rem; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: var(--slate-600); flex-shrink: 0; }
+    .path-container { padding: 3rem 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+    
+    .level-node { position: relative; display: flex; flex-direction: column; align-items: center; }
+    .level-node:nth-child(even) { transform: translateX(3rem); }
+    .level-node:nth-child(odd) { transform: translateX(-3rem); }
+    
+    .connector { position: absolute; top: 4rem; width: 0.75rem; height: 3rem; background: var(--slate-200); border-radius: 1rem; z-index: 0; }
+    
+    .node-btn {
+      width: 5rem; height: 5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border-bottom: 4px solid transparent; z-index: 1; transition: all 0.2s;
+    }
+    .node-completed { background: var(--emerald-400); border-color: var(--emerald-500); color: white; }
+    .node-current {
+      background: var(--indigo-500); border-color: var(--indigo-600); color: white;
+      transform: scale(1.1); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3), 0 0 0 4px var(--indigo-100);
+    }
+    .node-locked { background: var(--slate-200); border-color: var(--slate-300); color: var(--slate-400); }
+    .node-btn:not(.node-locked):active { transform: translateY(4px); border-bottom-width: 0; margin-bottom: 4px; }
+    .node-current:active { transform: scale(1.1) translateY(4px); }
+    
+    .fab-container { position: fixed; bottom: 1.5rem; left: 0; width: 100%; display: flex; justify-content: center; padding: 0 1.5rem; z-index: 20; pointer-events: none; }
+    .fab-container > button { max-width: 380px; pointer-events: auto; }
+
+    /* Ensure absolute FAB anchors to wrapper on desktop */
+    @media (min-width: 600px) {
+      .fab-container { position: absolute; }
+    }
+
+    /* --- DASHBOARD VIEW --- */
+    #dashboard { background: var(--slate-50); }
+    .dash-header { background: white; padding: 2rem; border-radius: 0 0 2.5rem 2.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+    .streak-badge { background: var(--orange-100); color: var(--orange-600); padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem; }
+    .score-large { font-size: 3.5rem; font-weight: 900; line-height: 1; }
+    .grade-circle { width: 4rem; height: 4rem; border-radius: 50%; background: var(--emerald-100); border: 4px solid var(--emerald-500); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 700; color: var(--emerald-700); }
+    .dash-card { background: white; padding: 1.25rem; border-radius: 1.5rem; border: 1px solid var(--slate-100); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    
+    .chart-area { height: 8rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 0.5rem; margin-top: 1rem; }
+    .chart-bar-bg { flex: 1; background: var(--slate-100); height: 100%; border-radius: 0.25rem 0.25rem 0 0; position: relative; display: flex; align-items: flex-end; }
+    .chart-bar-fill { width: 100%; background: var(--emerald-400); border-radius: 0.25rem 0.25rem 0 0; }
+    
+    .nav-card { background: var(--slate-900); color: white; padding: 1.25rem; border-radius: 1.25rem; display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; cursor: pointer; }
+    .nav-card-icon { width: 2.5rem; height: 2.5rem; background: var(--slate-800); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+
+    /* --- SESSION VIEW --- */
+    #session { background: var(--slate-900); color: white; display: none; flex-direction: column; }
+    #session.active { display: flex; }
+    .session-topbar { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; background: linear-gradient(to bottom, var(--slate-900), transparent); flex-shrink: 0;}
+    .cv-area{
+    flex:1;
+    width:100%;
+    min-height:600px;
+    max-height:80vh;
+    background:#111827;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+    .cv-bg { position: absolute; inset: 0; opacity: 0.2; background: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=600&auto=format&fit=crop') center/cover; z-index: 0; }
+    .cv-skeleton { position: absolute; width: clamp(10rem, 40vw, 12rem); height: clamp(16rem, 60vw, 20rem); border: 2px dashed rgba(16, 185, 129, 0.5); border-radius: 0.5rem; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; z-index: 1; }
+    .cv-status { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); padding: 0.5rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; color: var(--emerald-400); display: flex; align-items: center; gap: 0.5rem; z-index: 2; }
+    
+    .controls { padding: 2rem; text-align: center; flex-shrink: 0;}
+    
+    .player-buttons { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+    .btn-circle { width: 4rem; height: 4rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+    .btn-circle-dark { background: var(--slate-800); color: var(--slate-300); }
+    .btn-circle-primary { background: var(--emerald-500); color: white; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
+
+    /* --- RESPONSIVE ADJUSTMENTS FOR SMALL MOBILES (e.g. iPhone SE) --- */
+    @media (max-width: 380px) {
+      .p-8 { padding: 1.25rem; }
+      .grid-2 { grid-template-columns: 1fr; gap: 0.75rem; } /* Stack the assessment options */
+      .app-icon { width: 3rem; height: 3rem; margin-bottom: 1.5rem; }
+      .score-large { font-size: 3rem; }
+      .controls { padding: 1.5rem 1rem; }
+      .player-buttons { margin-top: 1rem; }
+    }
+    #game .cv-area{
+    width:100%;
+    height:100%;
+    margin:0;
+    border:none;
+}
+    
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div id="landing" class="view active">
+      <div class="p-8 mt-auto flex flex-col h-full justify-between">
+        <div style="margin-top: 2rem;">
+          <div class="app-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 7v10"/><path d="M8 12h8"/></svg>
+          </div>
+          <h1 class="hero-title">Welcome to <br><span>Rehabify</span></h1>
+          <p class="hero-subtitle">Your AI-powered musculoskeletal physical therapy, guided from the comfort of your home.</p>
+        </div>
+        
+        <div class="space-y-4 mb-8" style="margin-top: auto;">
+          <div class="feature-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-500)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Clinically backed protocols</span>
+          </div>
+          <div class="feature-card">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-500)" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Real-time AI posture tracking</span>
+          </div>
+          
+          <button class="btn btn-dark" style="margin-top: 2rem;" onclick="navigate('assessment')">
+            <span>Start Assessment</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="assessment" class="view">
+      <div class="p-8 flex flex-col h-full" style="padding-top: 3rem;">
+        <div class="progress-bar">
+          <div class="progress-step active" id="prog-1"></div>
+<div class="progress-step" id="prog-2"></div>
+<div class="progress-step" id="prog-3"></div>
+<div class="progress-step" id="prog-4"></div>
+<div class="progress-step" id="prog-5"></div>
+<div class="progress-step" id="prog-6"></div>
+        </div>
+        
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+          <div id="step-1" class="step-content active">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+Primary Discomfort
+</h2>
+
+<p style="margin-bottom:12px;font-weight:600;">
+Recovery Area
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Shoulder</button>
+  <button class="btn-outline" onclick="selectOption(this)">Knee</button>
+  <button class="btn-outline" onclick="selectOption(this)">Back</button>
+  <button class="btn-outline" onclick="selectOption(this)">Neck</button>
+  <button class="btn-outline" onclick="selectOption(this)">Hip</button>
+  <button class="btn-outline" onclick="selectOption(this)">Ankle</button>
+</div>
+
+<br>
+
+<p style="margin-bottom:12px;font-weight:600;">
+Affected Side
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Left</button>
+  <button class="btn-outline" onclick="selectOption(this)">Right</button>
+  <button class="btn-outline" onclick="selectOption(this)">Both</button>
+</div>
+
+</div>
+          
+         <div id="step-2" class="step-content">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+Patient Information
+</h2>
+
+<p style="font-weight:600;margin-bottom:10px;">Age Group</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">18-25</button>
+  <button class="btn-outline" onclick="selectOption(this)">26-40</button>
+  <button class="btn-outline" onclick="selectOption(this)">41-60</button>
+  <button class="btn-outline" onclick="selectOption(this)">60+</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">Activity Level</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Sedentary</button>
+  <button class="btn-outline" onclick="selectOption(this)">Active</button>
+  <button class="btn-outline" onclick="selectOption(this)">Athlete</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">Previous Injury / Surgery</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Yes</button>
+  <button class="btn-outline" onclick="selectOption(this)">No</button>
+</div>
+
+</div>
+
+          <div id="step-3" class="step-content">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+Pain Assessment
+</h2>
+
+<p style="margin-bottom:15px;">Current Pain Score</p>
+
+<input type="range" min="0" max="10" value="5">
+
+<div class="flex justify-between"
+style="margin-top:1rem;color:var(--slate-400)">
+<span>0</span>
+<span>10</span>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Pain During Movement
+</p>
+
+<div class="space-y-4">
+  <button class="btn-outline" onclick="selectOption(this)">None</button>
+  <button class="btn-outline" onclick="selectOption(this)">Mild</button>
+  <button class="btn-outline" onclick="selectOption(this)">Moderate</button>
+  <button class="btn-outline" onclick="selectOption(this)">Severe</button>
+</div>
+
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Pain Type
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Sharp</button>
+  <button class="btn-outline" onclick="selectOption(this)">Dull</button>
+  <button class="btn-outline" onclick="selectOption(this)">Stiffness</button>
+  <button class="btn-outline" onclick="selectOption(this)">Burning</button>
+</div>
+
+</div>
+          <!-- STEP 4 - CONDITION IDENTIFICATION -->
+<div id="step-4" class="step-content">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+Condition Details
+</h2>
+
+<p style="font-weight:600;margin-bottom:10px;">Duration</p>
+
+<div class="space-y-4">
+  <button class="btn-outline" onclick="selectOption(this)">&lt; 2 weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">2–6 weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">6–12 weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">3+ months</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">Cause</p>
+
+<div class="space-y-4">
+  <button class="btn-outline" onclick="selectOption(this)">Injury</button>
+  <button class="btn-outline" onclick="selectOption(this)">Surgery</button>
+  <button class="btn-outline" onclick="selectOption(this)">Sports</button>
+  <button class="btn-outline" onclick="selectOption(this)">Unknown</button>
+  <button class="btn-outline" onclick="selectOption(this)">Repetitive Strain</button>
+</div>
+
+</div>
+
+<!-- STEP 5 - FUNCTIONAL LIMITATION -->
+<div id="step-5" class="step-content">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+Functional Limitation
+</h2>
+
+<div class="space-y-4">
+  <button class="btn-outline" onclick="selectOption(this)">Reach Overhead</button>
+  <button class="btn-outline" onclick="selectOption(this)">Comb Hair</button>
+  <button class="btn-outline" onclick="selectOption(this)">Wear Shirt</button>
+  <button class="btn-outline" onclick="selectOption(this)">Lift Objects</button>
+  <button class="btn-outline" onclick="selectOption(this)">Reach Behind Back</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Difficulty Level
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">Easy</button>
+  <button class="btn-outline" onclick="selectOption(this)">Moderate</button>
+  <button class="btn-outline" onclick="selectOption(this)">Severe</button>
+</div>
+
+</div>
+
+<!-- STEP 6 - AI + GOALS -->
+<div id="step-6" class="step-content">
+
+<h2 style="font-size:1.875rem;font-weight:700;margin-bottom:1rem;">
+AI Assessment & Goals
+</h2>
+
+<div class="data-card">
+  <h3>Movement 1</h3>
+  <p>Shoulder Abduction</p>
+  <p><strong>ROM: 118°</strong></p>
+</div>
+
+<div class="data-card">
+  <h3>Movement 2</h3>
+  <p>Shoulder Flexion</p>
+  <p><strong>ROM: 126°</strong></p>
+</div>
+
+<div class="dark-card">
+  <h3>Movement Quality</h3>
+  <p>Smoothness: 72%</p>
+  <p>Symmetry: 81%</p>
+  <p>Compensation: Low</p>
+</div>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Recovery Goal
+</p>
+
+<div class="space-y-4">
+  <button class="btn-outline" onclick="selectOption(this)">Reduce Pain</button>
+  <button class="btn-outline" onclick="selectOption(this)">Improve Mobility</button>
+  <button class="btn-outline" onclick="selectOption(this)">Return To Sports</button>
+  <button class="btn-outline" onclick="selectOption(this)">Daily Activities</button>
+  <button class="btn-outline" onclick="selectOption(this)">Post-Surgery Recovery</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Weekly Commitment
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this)">10 min/day</button>
+  <button class="btn-outline" onclick="selectOption(this)">20 min/day</button>
+  <button class="btn-outline" onclick="selectOption(this)">30 min/day</button>
+</div>
+
+<br>
+
+<p style="font-weight:600;margin-bottom:10px;">
+Desired Timeline
+</p>
+
+<div class="grid-2">
+  <button class="btn-outline" onclick="selectOption(this) ">2 Weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">4 Weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">8 Weeks</button>
+  <button class="btn-outline" onclick="selectOption(this)">Flexible</button>
+</div>
+
+</div>
+        </div>
+
+        <button class="btn btn-dark" id="next-btn" onclick="nextStep()" style="margin-top: 2rem;">Continue</button>
+      </div>
+
+      <div id="loading-screen">
+        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Analyzing your mechanics...</h2>
+        <p style="color: var(--slate-500);">Creating your personalized recovery baseline.</p>
+      </div>
+    </div>
+
+    <div id="profile" class="view">
+      <div class="p-8" style="padding-top: 3rem;">
+        <span class="badge">AI ASSESSED</span>
+        <h2 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem;">Your Recovery Profile</h2>
+        <p style="color: var(--slate-500); margin-bottom: 2rem;">Based on clinical guidelines and your inputs.</p>
+
+        <div class="data-card">
+          <div class="data-row">
+            <span style="color: var(--slate-500);">Diagnosis Map</span>
+            <span style="font-weight: 700;"><span id="diagnosis">
+Loading...
+</span></span>
+          </div>
+          <div class="data-row">
+            <span style="color: var(--slate-500);">Starting Phase</span>
+            <span style="font-weight: 700; color: var(--emerald-600);"><span id="phase">
+Loading...
+</span></span>
+          </div>
+          <div class="data-row">
+            <span style="color: var(--slate-500);">Est. Timeline</span>
+            <span style="font-weight: 700;"><span id="timeline">
+Loading...
+</span></span>
+          </div>
+        </div>
+
+        <div class="dark-card">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Immediate Focus</h3>
+          <p style="color: var(--slate-300); line-height: 1.6;">
+            <p id="focus">
+Loading...
+</p>
+          </p>
+        </div>
+
+        <button class="btn btn-primary" onclick="navigate('journey')">View My Journey</button>
+      </div>
+    </div>
+
+    <div id="journey" class="view">
+      <div class="sticky-header">
+        <div>
+          <h2 style="font-size: 1.25rem; font-weight: 700;">Path to Recovery</h2>
+          <p style="font-size: 0.875rem; color: var(--slate-500);">Phase 3: Strengthening</p>
+        </div>
+        <button class="icon-btn" onclick="navigate('dashboard')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </button>
+      </div>
+
+      <div class="path-container">
+        <div class="level-node">
+          <div class="connector"></div>
+          <button class="node-btn node-completed">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+          </button>
+          <div class="text-center" style="margin-top: 0.75rem;">
+            <p style="font-weight: 700; color: var(--slate-700);">Foundation</p>
+            <p style="font-size: 0.75rem; color: var(--slate-500);">Basic joint mobility</p>
+          </div>
+        </div>
+
+        <div class="level-node">
+          <div class="connector"></div>
+          <button class="node-btn node-completed">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+          </button>
+          <div class="text-center" style="margin-top: 0.75rem;">
+            <p style="font-weight: 700; color: var(--slate-700);">Activation</p>
+            <p style="font-size: 0.75rem; color: var(--slate-500);">Muscle engagement</p>
+          </div>
+        </div>
+
+        <div class="level-node" style="z-index: 2;">
+          <div class="connector"></div>
+          <button class="node-btn node-current" onclick="navigate('session')">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <div class="text-center" style="margin-top: 0.75rem;">
+            <p style="font-weight: 700; color: var(--indigo-600);">Strengthening</p>
+            <p style="font-size: 0.75rem; color: var(--slate-500);">Load bearing</p>
+          </div>
+        </div>
+
+        <div class="level-node">
+          <div class="connector"></div>
+          <button class="node-btn node-locked">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </button>
+          <div class="text-center" style="margin-top: 0.75rem;">
+            <p style="font-weight: 700; color: var(--slate-400);">Dynamic</p>
+            <p style="font-size: 0.75rem; color: var(--slate-400);">Plyometrics intro</p>
+          </div>
+        </div>
+        
+        <div class="level-node">
+          <button class="node-btn node-locked">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </button>
+          <div class="text-center" style="margin-top: 0.75rem;">
+            <p style="font-weight: 700; color: var(--slate-400);">Full Function</p>
+            <p style="font-size: 0.75rem; color: var(--slate-400);">Return to sport</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="fab-container">
+        <button class="btn btn-indigo" onclick="navigate('session')">
+          <span>Start Today's Session</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="dashboard" class="view">
+      <div class="dash-header">
+        <div class="flex justify-between items-center mb-8">
+          <h2 style="font-size: 1.5rem; font-weight: 700;">Overview</h2>
+          <div class="streak-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>12 Day Streak</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <p style="color: var(--slate-500); margin-bottom: 0.25rem; font-weight: 500;">Mobility Score</p>
+            <div class="score-large">88<span style="font-size: 1.5rem; color: var(--slate-300);">/100</span></div>
+          </div>
+          <div class="grade-circle">A-</div>
+        </div>
+      </div>
+
+      <div class="p-8" style="padding-top: 0;">
+        <div class="dash-card">
+          <div class="flex justify-between items-center">
+            <h3 style="font-weight: 700; font-size: 1.125rem;">Pain Trend</h3>
+            <span style="color: var(--emerald-500); font-size: 0.875rem; font-weight: 600;">-2.4 this week</span>
+          </div>
+          
+          <div class="chart-area">
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 60%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 50%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 50%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 40%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 30%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 30%;"></div></div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="height: 20%;"></div></div>
+          </div>
+          <div class="flex justify-between" style="font-size: 0.75rem; color: var(--slate-400); font-weight: 600; margin-top: 0.5rem; padding: 0 0.25rem;">
+            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+          </div>
+        </div>
+
+        <div class="nav-card" onclick="navigate('journey')">
+          <div>
+            <p style="color: var(--slate-400); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Up Next</p>
+            <p style="font-weight: 700; font-size: 1.125rem;">Return to Journey Map</p>
+          </div>
+          <div class="nav-card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="dash-card">
+
+<h3>Today's Session</h3>
+
+<p>
+Max ROM:
+<span id="maxAngle">
+0°
+</span>
+</p>
+
+<p>
+Repetitions:
+<span id="reps">
+0
+</span>
+</p>
+
+<p>
+Posture:
+<span id="posture">
+0%
+</span>
+</p>
+
+<p>
+Game Score:
+<span id="gameScore">
+0
+</span>
+</p>
+
+</div>
+    </div>
+
+    <div id="session" class="view">
+      <div class="session-topbar">
+        <button onclick="navigate('dashboard')" style="color: var(--slate-300);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span style="font-weight: 700; letter-spacing: 0.1em; font-size: 0.875rem; color: var(--slate-400);">SESSION 12</span>
+        <div style="width: 24px;"></div>
+      </div>
+
+     <div class="cv-area">
+
+<img
+src="http://127.0.0.1:5000/video"
+style="
+width:100%;
+height:100%;
+object-fit:contain;
+">
+
+</div>
+      <div class="controls">
+       <h2
+id="exerciseName"
+style="
+font-size:1.875rem;
+font-weight:700;
+margin-bottom:0.5rem;
+">
+Loading...
+</h2>
+        <p style="color: var(--slate-400);">3 sets • 10 reps</p>
+        
+        <div class="player-buttons">
+          <button class="btn-circle btn-circle-dark">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button class="btn-circle btn-circle-primary">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <button class="btn-circle btn-circle-dark">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+       <button
+class="btn btn-primary"
+onclick="startExerciseGame()"
+style="margin-top:20px;width:100%;">
+    Play Rehab Game
+</button>
+      </div>
+    </div>
+    <div id="game" class="view">
+
+    <div class="session-topbar">
+
+        <button onclick="navigate('journey')">
+            Back
+        </button>
+
+        <h2>Balloon Pop Challenge</h2>
+
+    </div>
+
+    <div class="cv-area">
+
+        <img
+            src="http://127.0.0.1:5000/video"
+            style="
+                width:100%;
+                height:100%;
+                object-fit:contain;
+            "
+        >
+
+    </div>
+
+</div>
+
+  </div>
+
+  <script>
+    async function loadReport(){
+
+    const response =
+        await fetch(
+            "http://localhost:8000/session-report"
+        );
+
+    const report =
+        await response.json();
+
+    document.getElementById(
+        "maxAngle"
+    ).innerText =
+        report.max_angle + "°";
+
+    document.getElementById(
+        "reps"
+    ).innerText =
+        report.reps;
+
+    document.getElementById(
+        "posture"
+    ).innerText =
+        report.posture_score + "%";
+
+    document.getElementById(
+        "gameScore"
+    ).innerText =
+        report.score;
+}
+    // Navigation
+    function navigate(viewId){
+
+    document
+    .querySelectorAll('.view')
+    .forEach(el =>
+        el.classList.remove('active')
+    );
+
+    document
+    .getElementById(viewId)
+    .classList.add('active');
+
+    if(
+        viewId ===
+        "dashboard"
+    ){
+        loadReport();
+    }
+}
+     let gameUrl = "";
+    // Assessment Logic
+    let currentStep = 1;
+    function nextStep() {
+      if (currentStep < 6) {
+        // Hide current
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        // Update progress
+        currentStep++;
+        document.getElementById(`prog-${currentStep}`).classList.add('active');
+        // Show next
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        // Update Button Text
+        if(currentStep === 6) document.getElementById('next-btn').innerText = 'Generate Profile';
+      } else {
+        // Show Loading Screen
+        document.getElementById('loading-screen').style.display = 'flex';
+        // Simulate API call
+        generateProfile();
+      }
+    }
+
+    // Button Selection visually
+    // Single choice questions
+    const assessmentData = {};
+function selectOption(btn) {
+
+    const parent = btn.parentElement;
+
+    parent.querySelectorAll('.btn-outline')
+        .forEach(option => {
+            option.classList.remove('selected');
+        });
+
+    btn.classList.add('selected');
+
+    const step =
+        btn.closest('.step-content').id;
+
+   if (!assessmentData[step]) {
+    assessmentData[step] = [];
+}
+
+assessmentData[step].push(
+    btn.innerText
+);
+}
+
+// Multiple choice questions
+function toggleOption(btn) {
+    btn.classList.toggle('selected');
+}
+async function generateProfile() {
+
+    document.getElementById(
+        'loading-screen'
+    ).style.display = 'flex';
+
+    try {
+
+        const response = await fetch(
+            'http://localhost:8000/generate-profile',
+            {
+                method:'POST',
+                headers:{
+                    'Content-Type':
+                    'application/json'
+                },
+                body:JSON.stringify(
+                    assessmentData
+                )
+            }
+        );
+
+        const profile =
+            await response.json();
+
+        updateProfile(profile);
+
+        document.getElementById(
+            'loading-screen'
+        ).style.display = 'none';
+
+        navigate('profile');
+
+    } catch(err) {
+
+        console.error(err);
+
+        document.getElementById(
+            'loading-screen'
+        ).style.display = 'none';
+
+        alert("Gemini Error");
+    }
+}
+function updateProfile(profile){
+
+    document.getElementById('diagnosis').innerText =
+        profile.diagnosis;
+
+    document.getElementById('phase').innerText =
+        profile.phase;
+
+    document.getElementById('timeline').innerText =
+        profile.timeline;
+
+    document.getElementById('focus').innerText =
+        profile.focus;
+
+    let exerciseName =
+        "General Mobility Exercise";
+
+    gameUrl = "";
+
+    if(
+        profile.diagnosis
+        .toLowerCase()
+        .includes("shoulder")
+    ){
+        exerciseName =
+            "Balloon Pop Challenge";
+
+        gameUrl =
+            "http://127.0.0.1:5000";
+    }
+
+    document.getElementById(
+        "exerciseName"
+    ).innerText =
+        exerciseName;
+}
+function startExerciseGame(){
+
+    navigate('game');
+
+}
+  </script>
+</body>
+</html>
